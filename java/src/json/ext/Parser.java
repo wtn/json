@@ -655,7 +655,12 @@ public class Parser extends RubyObject {
 
         IRubyObject decodeFloat(ThreadContext context, long mantissa, int mantissa_digits, long exponent, boolean negative, int start) {
             if (config.decimalClass != null) return config.decimalFactory.apply(context, absSubSequence(start, cursor));
-            if (exponent >= Integer.MAX_VALUE) return getConstant(negative ? CONST_MINUS_INFINITY : CONST_INFINITY);
+            if (exponent >= Integer.MAX_VALUE) {
+                for (int i = start; i < cursor && data[i] != 'e' && data[i] != 'E'; i++) {
+                    if (data[i] >= '1' && data[i] <= '9') return getConstant(negative ? CONST_MINUS_INFINITY : CONST_INFINITY);
+                }
+                return RubyFloat.newFloat(context.runtime, negative ? -0.0 : 0.0);
+            }
             if (exponent <= Integer.MIN_VALUE) return RubyFloat.newFloat(context.runtime, negative ? -0.0 : 0.0);
 
             // Ryu has rounding issues with subnormals around 1e-310 (< 2.225e-308)

@@ -153,6 +153,11 @@ class JSONParserTest < Test::Unit::TestCase
     assert_parse_float "0.0e-99999999999999999999"
     assert_parse_float "-1.5e-99999999999999999999"
     assert_parse_float "123.456e-18446744073709551615"
+    assert_parse_float "0e99999999999999999999"
+    assert_parse_float "0e2147483647"
+    assert_parse_float "-0.0E+9223372036854775807"
+    assert_parse_float "0.00000000000000000000e2147483670"
+    capture_output { assert_equal(Float::INFINITY, parse("18446744073709551616e2147483647")) }
   end
 
   INTEGER_FAST_PATH_BOUNDARIES = [

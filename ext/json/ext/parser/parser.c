@@ -1173,7 +1173,12 @@ static inline VALUE json_decode_float(JSON_ParserConfig *config, uint64_t mantis
     }
 
     if (RB_UNLIKELY(exponent >= (int64_t)INT32_MAX)) {
-        return negative ? CMinusInfinity : CInfinity;
+        for (const char *cursor = start; cursor < end && rb_tolower(*cursor) != 'e'; cursor++) {
+            if (*cursor >= '1' && *cursor <= '9') {
+                return negative ? CMinusInfinity : CInfinity;
+            }
+        }
+        return rb_float_new(negative ? -0.0 : 0.0);
     }
 
     if (RB_UNLIKELY(exponent <= INT32_MIN)) {
